@@ -15,7 +15,7 @@ def ask_question(context, question):
             {"role": "user", "content": f"Context: {context}\nQuestion: {question}"} # User message with context and question
         ],
         temperature=0.7,   # Adjust for creativity
-        # max_tokens=150,    # Adjust as needed
+        max_completion_tokens=150,    # Adjust as needed
     )
     # Extract the answer from the response (new way for chat completions)
     answer = response.choices[0].message.content.strip() # Accessing the content from the first choice and message
