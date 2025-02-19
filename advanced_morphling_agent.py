@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 from langchain_community.utilities import DuckDuckGoSearchAPIWrapper
 import datetime  # Import datetime for timestamping log files
+import ollama
 
 # Load API key from .env file
 load_dotenv()
@@ -139,12 +140,21 @@ def ask_question(topic, context, question):
     log_markdown("User Message (with Context):", level=3)
     log_code_block(messages[1]['content'])
 
-    response = openai.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=messages,
-        max_completion_tokens=150,
+    # response = openai.chat.completions.create(
+    #     model="gpt-4o-mini",
+    #     messages=messages,
+    #     max_completion_tokens=150,
+    # )
+    # answer = response.choices[0].message.content.strip()
+
+    # --- REPLACING OPENAI API CALL WITH OLLAMA ---
+    response = ollama.chat(
+        model='deepseek-r1:14b', # Or the name of the model you pulled (e.g., 'mistral')
+        messages=messages, # You might need to adapt the messages format slightly - see Ollama library docs
+        # You might need to adjust parameters like max_tokens, temperature, etc., based on Ollama library and model capabilities
     )
-    answer = response.choices[0].message.content.strip()
+    answer = response['message']['content'].strip() #  Adapt to extract answer from Ollama response format
+    # --- END OLLAMA INTEGRATION ---
 
     log_markdown("Generated Answer (from Main Agent):", level=3)
     log_code_block(answer)
