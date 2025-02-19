@@ -28,7 +28,7 @@ def instruction_optimization_tool(question_topic):
     """
 
     response = openai.chat.completions.create(
-        model="gpt-3.5-turbo",
+        model="gpt-4o-mini", # Using gpt-3.5-turbo for system message generation - you CAN change to "gpt-4o-mini" here too!
         messages=[{"role": "user", "content": prompt}],
         max_completion_tokens=150,
     )
@@ -44,22 +44,17 @@ def context_building_tool(question_topic):
     else:
         return "No relevant information found online for this topic."
 
-# --- Question Analysis Tool (Keyword-Based) ---
-topic_keywords = {
-    "history": ["history", "when", "era", "century", "revolution", "past", "ancient", "historical"],
-    "movies": ["movie", "film", "director", "actor", "plot", "genre", "cinema", "films"],
-    "recipes": ["recipe", "cook", "bake", "ingredients", "dish", "food", "eat", "cuisine"],
-    "quantum physics": ["quantum", "physics", "entanglement", "particle", "atom", "qubit", "quantum mechanics"]
-    # Add more topics and keywords here!
-}
+# --- Question Analysis Tool (AI-Powered, using gpt-4o-mini as requested!) ---
+def llm_question_analysis_tool(question):
+    prompt = f"""Determine the BEST expert topic to answer the following question.  Choose ONE topic from this list: history, movies, recipes, quantum physics, wordplay, OR general.  The question is: "{question}"  Respond with just the SINGLE WORD topic name, nothing else."""
 
-def question_analysis_tool(question):
-    question_lower = question.lower()
-    for topic, keywords in topic_keywords.items():
-        for keyword in keywords:
-            if keyword in question_lower:
-                return topic
-    return "general" # Default topic if no keywords are found
+    response = openai.chat.completions.create(
+        model="gpt-4o-mini", # Using gpt-4o-mini for topic inference as requested!
+        messages=[{"role": "user", "content": prompt}],
+        max_completion_tokens=20 #  Short response - just the topic word
+    )
+    inferred_topic = response.choices[0].message.content.strip().lower() # Extract and clean topic response
+    return inferred_topic
 
 def ask_question(topic, context, question):
     system_message_content = instruction_optimization_tool(topic)
@@ -78,13 +73,14 @@ def ask_question(topic, context, question):
     return answer
 
 if __name__ == "__main__":
-    question = input("Enter your question: ") # Just ask for the question now!
-    topic = question_analysis_tool(question) # Infer topic from question
-    print(f"Inferred topic from question: {topic}") # Inform user about inferred topic
-    context = context_building_tool(topic) # Build context based on inferred topic
+    question = input("Enter your question: ") # Just ask for the question
 
+    topic = llm_question_analysis_tool(question) # USE THE NEW LLM QUESTION ANALYZER!
+    print(f"Inferred topic from question (using LLM): {topic}") #  Updated print message
+
+    context = context_building_tool(topic)
     print("\nContext loaded for topic:", topic)
-    # print("Context:\n", context) # Uncomment to see context
+    # print("Context:\n", context)
 
     answer = ask_question(topic, context, question)
 
