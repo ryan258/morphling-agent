@@ -36,8 +36,13 @@ def instruction_optimization_tool(question_topic):
     return system_message_content
 
 # --- Real Context Building Tool using DuckDuckGo Search ---
-def context_building_tool(question_topic):
-    search_results = search.run(f"information about {question_topic}")
+def context_building_tool(question_topic, user_question): # Now takes user_question as input too!
+    if question_topic == "general":
+        search_query = f"information about {question_topic}" # General search for general topics
+    else:
+        search_query = f"{user_question} {question_topic}" # More specific search for non-general topics! Combine question and topic!
+
+    search_results = search.run(search_query) # Use the *modified* search query
     if search_results:
         context = search_results
         return context
@@ -75,10 +80,10 @@ def ask_question(topic, context, question):
 if __name__ == "__main__":
     question = input("Enter your question: ") # Just ask for the question
 
-    topic = llm_question_analysis_tool(question) # USE THE NEW LLM QUESTION ANALYZER!
-    print(f"Inferred topic from question (using LLM): {topic}") #  Updated print message
+    topic = llm_question_analysis_tool(question) # USE THE LLM QUESTION ANALYZER!
+    print(f"Inferred topic from question (using LLM): {topic}")
 
-    context = context_building_tool(topic)
+    context = context_building_tool(topic, question) # Pass both topic AND question to context_building_tool!  <--- IMPORTANT CHANGE HERE!
     print("\nContext loaded for topic:", topic)
     # print("Context:\n", context)
 
