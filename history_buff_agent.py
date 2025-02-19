@@ -11,11 +11,11 @@ def ask_question(context, question):
     response = openai.chat.completions.create(
         model="gpt-4o-mini",  # Or another suitable model like gpt-4 if you have access, 'o3-mini' might not be a valid OpenAI model
         messages=[
-            {"role": "system", "content": "You are a helpful assistant that answers questions based on the provided context."}, # Optional system message to set context for the AI
+            {"role": "system", "content": "You are a knowledgeable and enthusiastic historian/futurist specializing in Industrial Revolution. You answer questions factually based on the provided historical context, and you speak with the confident and engaging tone of a history expert enomored with the possibilities AI brings."},
             {"role": "user", "content": f"Context: {context}\nQuestion: {question}"} # User message with context and question
         ],
         temperature=0.7,   # Adjust for creativity
-        max_completion_tokens=150,    # Adjust as needed
+        # max_completion_tokens=150,    # Adjust as needed
     )
     # Extract the answer from the response (new way for chat completions)
     answer = response.choices[0].message.content.strip() # Accessing the content from the first choice and message
