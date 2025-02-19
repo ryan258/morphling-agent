@@ -125,16 +125,19 @@ Prefer a specific topic if one is clearly identifiable, unless the question is g
 def ask_question(topic, context, question):
     system_message_content = instruction_optimization_tool(topic)
 
+    # --- OPTION 2.1A: EMPHATIC CONTEXT LABELING ---
+    user_message_content = f"""**CONTEXT START**\n{context}\n**CONTEXT END**\n\n**QUESTION:** {question}"""
     messages = [
         {"role": "system", "content": system_message_content},
-        {"role": "user", "content": f"Context: {context}\nQuestion: {question}"}
+        {"role": "user", "content": user_message_content} # Using modified user_message_content
     ]
+    # --- END OPTION 2.1A ---
 
-    log_markdown("Main Agent Call", level=2) # Start log section
-    log_markdown("System Message:", level=3) # Log system message
-    log_code_block(messages[0]['content']) # Log system message as code block
-    log_markdown("User Message (with Context):", level=3) # Log user message
-    log_code_block(messages[1]['content']) # Log user message as code block
+    log_markdown("Main Agent Call", level=2)
+    log_markdown("System Message:", level=3)
+    log_code_block(messages[0]['content'])
+    log_markdown("User Message (with Context):", level=3)
+    log_code_block(messages[1]['content'])
 
     response = openai.chat.completions.create(
         model="gpt-4o-mini",
@@ -143,8 +146,8 @@ def ask_question(topic, context, question):
     )
     answer = response.choices[0].message.content.strip()
 
-    log_markdown("Generated Answer (from Main Agent):", level=3) # Log answer
-    log_code_block(answer) # Log answer as code block
+    log_markdown("Generated Answer (from Main Agent):", level=3)
+    log_code_block(answer)
     return answer
 
 if __name__ == "__main__":
