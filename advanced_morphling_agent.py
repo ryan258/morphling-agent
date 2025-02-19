@@ -30,7 +30,7 @@ def instruction_optimization_tool(question_topic):
     response = openai.chat.completions.create(
         model="gpt-4o-mini", # Using gpt-3.5-turbo for system message generation - you CAN change to "gpt-4o-mini" here too!
         messages=[{"role": "user", "content": prompt}],
-        max_completion_tokens=150,
+        # max_completion_tokens=150,
     )
     system_message_content = response.choices[0].message.content.strip()
     return system_message_content
@@ -51,14 +51,21 @@ def context_building_tool(question_topic, user_question): # Now takes user_quest
 
 # --- Question Analysis Tool (AI-Powered, using gpt-4o-mini as requested!) ---
 def llm_question_analysis_tool(question):
-    prompt = f"""Determine the BEST expert topic to answer the following question.  Choose ONE topic from this list: history, movies, recipes, quantum physics, wordplay, OR general.  The question is: "{question}"  Respond with just the SINGLE WORD topic name, nothing else."""
+    prompt = f"""Determine the most relevant expert topic or domain of knowledge required to answer the user's question effectively.
+
+    Consider the question and identify the area of expertise that an ideal expert would possess to provide a comprehensive and accurate answer.  Think about fields of study, professions, or general areas of knowledge.
+
+    The question is: "{question}"
+
+    Respond with a concise, single-word or short phrase that represents the most appropriate expert topic. If the question is very general or doesn't fit into a specific expert domain, you can respond with 'general'."
+    """
 
     response = openai.chat.completions.create(
-        model="gpt-4o-mini", # Using gpt-4o-mini for topic inference as requested!
+        model="gpt-4o-mini", # Keep using gpt-4o-mini for topic inference - excellent choice!
         messages=[{"role": "user", "content": prompt}],
-        max_completion_tokens=20 #  Short response - just the topic word
+        # max_completion_tokens=30 #  Slightly increase max tokens to allow for short phrases as topic
     )
-    inferred_topic = response.choices[0].message.content.strip().lower() # Extract and clean topic response
+    inferred_topic = response.choices[0].message.content.strip().lower() # Extract and clean topic
     return inferred_topic
 
 def ask_question(topic, context, question):
@@ -72,7 +79,7 @@ def ask_question(topic, context, question):
     response = openai.chat.completions.create(
         model="gpt-4o-mini",
         messages=messages,
-        max_completion_tokens=150,
+        # max_completion_tokens=150,
     )
     answer = response.choices[0].message.content.strip()
     return answer
