@@ -27,26 +27,40 @@ def instruction_optimization_tool(question_topic):
     Generate a concise and effective system message, ready to be used in the 'system' role of a chat completion API call. Just provide the system message content itself, not any extra preamble or explanation.
     """
 
+    print("\n--- Instruction Optimization Tool ---") # Log: Start of Instruction Optimization
+    print(f"Topic for Instruction Optimization: {question_topic}") # Log: Topic for which instructions are being optimized
+    print(f"Prompt sent to LLM for system message generation:\n{prompt}") # Log: Prompt for system message generation
+
     response = openai.chat.completions.create(
-        model="gpt-4o-mini", # Using gpt-3.5-turbo for system message generation - you CAN change to "gpt-4o-mini" here too!
+        model="gpt-3.5-turbo",
         messages=[{"role": "user", "content": prompt}],
-        # max_completion_tokens=150,
+        max_completion_tokens=150,
     )
     system_message_content = response.choices[0].message.content.strip()
+    print(f"Generated System Message Content:\n{system_message_content}") # Log: Generated System Message
+
     return system_message_content
 
-# --- Real Context Building Tool using DuckDuckGo Search ---
-def context_building_tool(question_topic, user_question): # Now takes user_question as input too!
-    if question_topic == "general":
-        search_query = f"information about {question_topic}" # General search for general topics
-    else:
-        search_query = f"{user_question} {question_topic}" # More specific search for non-general topics! Combine question and topic!
 
-    search_results = search.run(search_query) # Use the *modified* search query
+# --- Real Context Building Tool using DuckDuckGo Search ---
+def context_building_tool(question_topic, user_question):
+    if question_topic == "general":
+        search_query = f"information about {question_topic}"
+    else:
+        search_query = f"{user_question} {question_topic}"
+
+    print("\n--- Context Building Tool ---") # Log: Start of Context Building
+    print(f"Topic for Context Building: {question_topic}") # Log: Topic for context building
+    print(f"Search Query sent to DuckDuckGo: {search_query}") # Log: Search Query
+
+    search_results = search.run(search_query)
     if search_results:
         context = search_results
+        # Log: Beginning of retrieved context (first 200 characters, for example)
+        print(f"Retrieved Context (first 200 chars):\n{context[:200]} ... (truncated)")
         return context
     else:
+        print("No relevant information found online.") # Log: No context found
         return "No relevant information found online for this topic."
 
 # --- Question Analysis Tool (AI-Powered, using gpt-4o-mini as requested!) ---
@@ -60,12 +74,18 @@ def llm_question_analysis_tool(question):
     Respond with a concise, single-word or short phrase that represents the most appropriate expert topic. If the question is very general or doesn't fit into a specific expert domain, you can respond with 'general'."
     """
 
+    print("\n--- Question Analysis Tool ---") # Log: Start of Question Analysis
+    print(f"User Question: {question}") # Log: User Question being analyzed
+    print(f"Prompt sent to LLM for topic inference:\n{prompt}") # Log: Prompt for topic inference
+
     response = openai.chat.completions.create(
-        model="gpt-4o-mini", # Keep using gpt-4o-mini for topic inference - excellent choice!
+        model="gpt-4o-mini",
         messages=[{"role": "user", "content": prompt}],
-        # max_completion_tokens=30 #  Slightly increase max tokens to allow for short phrases as topic
+        # max_completion_tokens=30
     )
-    inferred_topic = response.choices[0].message.content.strip().lower() # Extract and clean topic
+    inferred_topic = response.choices[0].message.content.strip().lower()
+    print(f"Inferred Topic (from LLM): {inferred_topic}") # Log: Inferred Topic
+
     return inferred_topic
 
 def ask_question(topic, context, question):
@@ -75,6 +95,10 @@ def ask_question(topic, context, question):
         {"role": "system", "content": system_message_content},
         {"role": "user", "content": f"Context: {context}\nQuestion: {question}"}
     ]
+
+    print("\n--- Main Agent Call ---") # Log: Start of Main Agent Call
+    print(f"System Message:\n{messages[0]['content']}") # Log: System Message being used
+    print(f"User Message (with Context):\n{messages[1]['content']}") # Log: User Message with Context
 
     response = openai.chat.completions.create(
         model="gpt-4o-mini",
